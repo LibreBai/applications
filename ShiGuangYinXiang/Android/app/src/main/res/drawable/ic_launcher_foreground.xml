@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 简单的时钟图形：白底圆盘 + 背景色镂空 + 指针，呼应「时间」主题 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- 白色外圆 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M54,14 a40,40 0 1 0 0.001,0 z" />
+    <!-- 背景色内圆（镂空效果） -->
+    <path
+        android:fillColor="#FF2E7D5B"
+        android:pathData="M54,24 a30,30 0 1 0 0.001,0 z" />
+    <!-- 分针 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M51.5,27 L56.5,27 L56.5,53 L51.5,53 z" />
+    <!-- 时针 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M54,50 L66,58 L63,62 L51,55 z" />
+    <!-- 中心轴 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M54,49 a3,3 0 1 0 0.001,0 z" />
+</vector>

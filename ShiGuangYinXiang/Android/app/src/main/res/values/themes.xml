@@ -1,0 +1,4 @@
+<resources>
+    <!-- 纯 Compose 工程，用平台自带主题，不引入 Material Components -->
+    <style name="Theme.ShiGuangYinXiang" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>
