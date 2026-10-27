@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>牛马草料计算器</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0b0e14; --card:#121826; --line:#243049;
+  --text:#e8ecf4; --muted:#8b94ab;
+  --green:#34d399; --gold:#fbbf24; --blue:#60a5fa; --cyan:#7dd3fc;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:radial-gradient(1100px 700px at 75% -10%,#182342 0%,var(--bg) 55%);
+  color:var(--text);
+  font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;
+  min-height:100vh;padding:24px 16px 48px;
+}
+.wrap{max-width:720px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+h1{font-size:22px;font-weight:800;letter-spacing:.5px}
+.clock{color:var(--muted);font-family:Consolas,monospace;font-size:14px}
+.card{
+  background:linear-gradient(180deg,#151c2e 0%,var(--card) 100%);
+  border:1px solid var(--line);border-radius:16px;padding:20px;margin-top:14px;
+  box-shadow:0 8px 24px rgba(0,0,0,.25);
+}
+.set-row{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12px;color:var(--muted)}
+input[type=number],input[type=time]{
+  background:#0d1322;border:1px solid var(--line);border-radius:10px;color:var(--text);
+  padding:9px 12px;font-size:15px;font-family:Consolas,monospace;outline:none;
+}
+input:focus{border-color:var(--green)}
+.money-input{display:flex;align-items:center;gap:6px;background:#0d1322;border:1px solid var(--line);border-radius:10px;padding:0 12px}
+.money-input span{color:var(--gold);font-weight:700}
+.money-input input{border:none;background:transparent;padding:9px 0;width:130px}
+.seg{display:flex;background:#0d1322;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{background:transparent;border:0;color:var(--muted);padding:10px 18px;font-size:15px;cursor:pointer;font-family:inherit}
+.seg button.active{background:var(--green);color:#06281c;font-weight:700}
+details{margin-top:14px}
+summary{cursor:pointer;color:var(--muted);font-size:13px;user-select:none}
+.adv{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;align-items:flex-end}
+.derive{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);font-size:13px;color:var(--muted)}
+.derive b{color:var(--text);font-family:Consolas,monospace}
+.derive .hint{font-size:12px}
+.stat{text-align:center}
+.label{color:var(--muted);font-size:13px;letter-spacing:2px}
+.big{font-family:Consolas,"Courier New",monospace;font-variant-numeric:tabular-nums;font-weight:700;margin:8px 0 6px}
+.hero .big{font-size:clamp(40px,9vw,64px);color:var(--green);text-shadow:0 0 26px rgba(52,211,153,.35)}
+.month-big{font-size:clamp(30px,6.5vw,46px);color:var(--gold);text-shadow:0 0 22px rgba(251,191,36,.25)}
+.status{margin:2px 0 14px;font-size:14px;color:var(--muted)}
+.status b{color:var(--text)}
+.badge{display:inline-block;background:#0d1322;border:1px solid var(--line);border-radius:999px;padding:4px 12px;margin-right:8px;color:var(--text)}
+.bar{height:10px;background:#0d1322;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#10b981,#34d399,#6ee7b7)}
+.bar.gold i{background:linear-gradient(90deg,#d97706,#fbbf24,#fde68a)}
+.fish{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.fish-btn{
+  background:#0d1322;border:1px solid var(--line);color:var(--text);border-radius:12px;
+  padding:12px 22px;font-size:15px;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap;
+}
+.fish-btn:hover{border-color:var(--gold)}
+.fish-btn.active{background:linear-gradient(135deg,#f59e0b,#fbbf24);border-color:transparent;color:#3a2503;font-weight:800}
+.fish-stats{flex:1;min-width:220px}
+.fish-stats .fv{font-family:Consolas,monospace;font-size:24px;font-weight:700;color:var(--cyan)}
+.fish-stats .fk{font-size:12px;color:var(--muted);margin-top:2px}
+.fish-stats .fk b{color:var(--text);font-family:Consolas,monospace}
+.fish-hint{width:100%;font-size:12px;color:var(--muted);line-height:1.6}
+.fish-hint .warn{color:var(--gold)}
+.rates{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.chip{flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:center}
+.chip .v{font-family:Consolas,monospace;font-size:17px;font-weight:700;color:var(--blue)}
+.chip .k{font-size:12px;color:var(--muted);margin-top:4px}
+.foot-note{margin-top:10px;text-align:center;font-size:12px;color:var(--muted)}
+footer{margin-top:22px;text-align:center;color:var(--muted);font-size:13px;font-style:italic}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>💰 牛马草料计算器</h1>
+    <div class="clock" id="clock">--</div>
+  </header>
+
+  <section class="card">
+    <div class="set-row">
+      <div class="field">
+        <label>月总收入（元）</label>
+        <div class="money-input"><span>¥</span><input id="monthly" type="number" min="1" step="100" placeholder="如 10000"></div>
+      </div>
+      <div class="field">
+        <label>上班时间</label>
+        <div class="seg">
+          <button id="btn-0830" type="button">08:30</button>
+          <button id="btn-0900" type="button">09:00</button>
+        </div>
+      </div>
+    </div>
+    <details>
+      <summary>高级设置（工时 / 午休时段）</summary>
+      <div class="adv">
+        <div class="field">
+          <label>每日计薪工时（小时）</label>
+          <input id="workHours" type="number" min="1" max="16" step="0.5">
+        </div>
+        <div class="field">
+          <label>午休开始（不计薪）</label>
+          <input id="lunchStart" type="time">
+        </div>
+        <div class="field">
+          <label>午休结束</label>
+          <input id="lunchEnd" type="time">
+        </div>
+      </div>
+    </details>
+    <div class="derive">
+      下班 <b id="endTime">--:--</b> ｜ 日均 <b>¥<span id="dailyIncome">0.00</span></b> ｜ 时薪 <b>¥<span id="hourly">0.00</span></b>
+      <span class="hint">（月收入 ÷ 21.75 天 ÷ 每日工时，午休不计薪）</span>
+    </div>
+  </section>
+
+  <section class="card stat hero">
+    <div class="label">今日已累计</div>
+    <div class="big">¥<span id="today">0.0000</span></div>
+    <div class="status"><span class="badge" id="badge">--</span><span id="countdown"></span></div>
+    <div class="bar"><i id="todayBar"></i></div>
+  </section>
+
+  <section class="card fish">
+    <button id="fishBtn" class="fish-btn" type="button">🐟 开始摸鱼</button>
+    <div class="fish-stats">
+      <div class="fv">¥<span id="fishMoney">0.00</span></div>
+      <div class="fk">今日摸鱼额度 ｜ 已摸 <b id="fishDur">0.0</b> 分钟 ｜ 占今日 <b id="fishPct">0%</b></div>
+    </div>
+    <div class="fish-hint" id="fishHint">暂停的是"搬砖"，不是薪水：摸鱼期间工资照涨，涨的钱单独记入摸鱼额度。午休、下班、周末摸鱼不计额。</div>
+  </section>
+
+  <section class="card stat">
+    <div class="label">本月（<span id="monthLabel">--</span>月）已累计</div>
+    <div class="big month-big">¥<span id="month">0.00</span></div>
+    <div class="bar gold"><i id="monthBar"></i></div>
+    <div class="status">本月进度 <b id="monthPct">0%</b> ｜ 已计 <b id="workdays">0</b> 个工作日（含今日实时）</div>
+  </section>
+
+  <div class="rates">
+    <div class="chip"><div class="v">¥<span id="rateMin">0</span></div><div class="k">每分钟</div></div>
+    <div class="chip"><div class="v">¥<span id="rateSec">0</span></div><div class="k">每秒钟</div></div>
+    <div class="chip"><div class="v">21.75 天</div><div class="k">月计薪天数</div></div>
+  </div>
+  <div class="foot-note">v1 口径：周一至周五计薪，暂未内置法定节假日调休表</div>
+
+  <footer id="quote"></footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+var PAY_DAYS = 21.75;
+var STORE_KEY = "niaoma_income_v1";
+var FISH_KEY = "niaoma_fish_v1";
+
+function $(id){ return document.getElementById(id); }
+var els = {
+  clock:$("clock"), monthly:$("monthly"), b0830:$("btn-0830"), b0900:$("btn-0900"),
+  workHours:$("workHours"), lunchStart:$("lunchStart"), lunchEnd:$("lunchEnd"),
+  endTime:$("endTime"), daily:$("dailyIncome"), hourly:$("hourly"),
+  today:$("today"), month:$("month"), todayBar:$("todayBar"), monthBar:$("monthBar"),
+  monthPct:$("monthPct"), monthLabel:$("monthLabel"), workdays:$("workdays"),
+  badge:$("badge"), countdown:$("countdown"), rateMin:$("rateMin"), rateSec:$("rateSec"),
+  quote:$("quote"), fishBtn:$("fishBtn"), fishMoney:$("fishMoney"),
+  fishDur:$("fishDur"), fishPct:$("fishPct"), fishHint:$("fishHint")
+};
+
+/* ---------- 设置（持久化） ---------- */
+function defaultCfg(){ return { monthly:10000, startMode:"0900", workHours:8, lunchStart:"12:00", lunchEnd:"13:00" }; }
+var cfg = (function(){
+  try{
+    var raw = localStorage.getItem(STORE_KEY);
+    if(raw) return Object.assign(defaultCfg(), JSON.parse(raw));
+  }catch(e){}
+  return defaultCfg();
+})();
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(cfg)); }catch(e){} }
+
+/* ---------- 摸鱼状态（按天持久化） ---------- */
+function todayKey(){ var d=new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+var fish = (function(){
+  try{
+    var r = JSON.parse(localStorage.getItem(FISH_KEY)||"null");
+    if(r && r.day) return r;
+  }catch(e){}
+  return { day:todayKey(), paused:false, pauseStart:0, banked:0 };
+})();
+function saveFish(){ try{ localStorage.setItem(FISH_KEY, JSON.stringify(fish)); }catch(e){} }
+function resetFishIfNewDay(){
+  var k = todayKey();
+  if(fish.day !== k){ fish = { day:k, paused:false, pauseStart:0, banked:0 }; saveFish(); }
+}
+
+/* ---------- 工具函数 ---------- */
+function pad(n){ return (n<10?"0":"")+n; }
+function hm2min(s){ var p=(s||"").split(":"); return (parseInt(p[0],10)||0)*60 + (parseInt(p[1],10)||0); }
+function min2hm(t){ t=Math.round(t); return pad(Math.floor(t/60)%24)+":"+pad(t%60); }
+function fmt(v,frac){ return Number(v).toLocaleString("zh-CN",{minimumFractionDigits:frac,maximumFractionDigits:frac}); }
+function fmtDur(mins){
+  var s=Math.max(0,Math.round(mins*60));
+  return pad(Math.floor(s/3600))+":"+pad(Math.floor((s%3600)/60))+":"+pad(s%60);
+}
+function isWorkday(d){ var w=d.getDay(); return w>=1 && w<=5; }
+
+/* ---------- 时间线模型 ---------- */
+function schedule(){
+  var start = cfg.startMode==="0830" ? 510 : 540;           // 08:30 / 09:00
+  var lunchStart = hm2min(cfg.lunchStart);
+  var lunchEnd = hm2min(cfg.lunchEnd);
+  if(!(lunchEnd > lunchStart)) lunchEnd = lunchStart + 60;
+  var workMin = Math.max(1, Math.round((parseFloat(cfg.workHours)||8)*60));
+  var morning = Math.max(0, Math.min(lunchStart - start, workMin));  // 上午最多计满全天工时
+  var afternoon = Math.max(0, workMin - morning);
+  return { start:start, lunchStart:lunchStart, lunchEnd:lunchEnd, workMin:workMin, morning:morning, end:lunchEnd+afternoon };
+}
+function paidMin(t, s){
+  if(t <= s.start) return 0;
+  if(t < s.lunchStart) return Math.min(t - s.start, s.workMin);   // 上午计薪不超过全天工时
+  if(t < s.lunchEnd) return s.morning;                       // 午休冻结
+  if(t >= s.end) return s.workMin;                           // 下班封顶
+  return s.morning + (t - s.lunchEnd);
+}
+function nowMinutes(d){
+  return d.getHours()*60 + d.getMinutes() + d.getSeconds()/60 + d.getMilliseconds()/6e4;
+}
+
+/* ---------- 摸鱼额度：本段摸鱼对应的计薪分钟 ---------- */
+function sessionPaidMin(){
+  if(!fish.paused) return 0;
+  var now = new Date();
+  if(!isWorkday(now)) return 0;
+  var ps = new Date(fish.pauseStart);
+  var sameDay = ps.getFullYear()===now.getFullYear() && ps.getMonth()===now.getMonth() && ps.getDate()===now.getDate();
+  var startMin = sameDay ? nowMinutes(ps) : 0;
+  var s = schedule();
+  return Math.max(0, paidMin(nowMinutes(now), s) - paidMin(startMin, s));
+}
+
+/* ---------- 语录 ---------- */
+var QUOTES = [
+  "只要我摸鱼够快，KPI 就追不上我。",
+  "钱是一秒一秒挣的，班是一天一天上的。",
+  "牛马也需要正反馈：看着数字跳。",
+  "带薪摸鱼，是牛马最后的倔强。",
+  "草料按秒结算，牛马含泪进食。",
+  "多拉一秒磨，多嚼一口草。",
+  "今日事今日毕，今日钱今日看。",
+  "打工不可怕，可怕的是不知道自己每小时值多少钱。"
+];
+
+/* ---------- 主渲染（时间驱动，每帧重算） ---------- */
+function render(){
+  var now = new Date();
+  resetFishIfNewDay();
+
+  var wd = ["日","一","二","三","四","五","六"][now.getDay()];
+  els.clock.textContent = "本地时间 " + now.getFullYear()+"-"+pad(now.getMonth()+1)+"-"+pad(now.getDate())
+    +" 星期"+wd+" "+pad(now.getHours())+":"+pad(now.getMinutes())+":"+pad(now.getSeconds());
+  els.monthLabel.textContent = now.getMonth()+1;
+
+  var M = parseFloat(cfg.monthly);
+  if(!isFinite(M) || M<=0) M = 0;
+  var s = schedule();
+  var daily = M / PAY_DAYS;
+  var perMin = s.workMin ? daily/s.workMin : 0;
+  var perSec = s.workMin ? daily/(s.workMin*60) : 0;
+
+  els.endTime.textContent = min2hm(s.end);
+  els.daily.textContent = fmt(daily,2);
+  els.hourly.textContent = fmt(s.workMin ? daily/(s.workMin/60) : 0, 2);
+  els.rateMin.textContent = fmt(perMin,4);
+  els.rateSec.textContent = perSec.toFixed(6);
+
+  var t = nowMinutes(now);
+  var weekend = !isWorkday(now);
+  var inLunch = t>=s.lunchStart && t<s.lunchEnd;
+  var inPaid = !weekend && t>s.start && t<s.end && !inLunch;
+  var todayPaid = weekend ? 0 : paidMin(t,s) * perMin;  /* paid 为分钟数，须乘每分钟单价 */
+
+  var days=0, d=new Date(now.getFullYear(),now.getMonth(),1), end=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  while(d < end){ if(isWorkday(d)) days++; d.setDate(d.getDate()+1); }
+  var monthPaid = days*daily + todayPaid;
+
+  els.today.textContent = fmt(todayPaid,4);
+  els.month.textContent = fmt(monthPaid,2);
+
+  els.todayBar.style.width = (weekend ? 0 : Math.min(100, paidMin(t,s)/s.workMin*100)) + "%";
+  var mp = M>0 ? Math.min(100, monthPaid/M*100) : 0;
+  els.monthBar.style.width = mp+"%";
+  els.monthPct.textContent = mp.toFixed(1)+"%";
+  els.workdays.textContent = days;
+
+  /* 摸鱼额度 */
+  var fishTotalMin = fish.banked + sessionPaidMin();
+  var fishMoney = fishTotalMin * perMin;
+  els.fishMoney.textContent = fmt(fishMoney,2);
+  els.fishDur.textContent = fishTotalMin.toFixed(1);
+  els.fishPct.textContent = (todayPaid>0 ? Math.min(100, fishMoney/todayPaid*100) : 0).toFixed(1)+"%";
+  var offDuty = weekend || t<s.start || t>=s.end || inLunch;
+  els.fishHint.innerHTML = "暂停的是\"搬砖\"，不是薪水：摸鱼期间工资照涨，涨的钱单独记入摸鱼额度。午休、下班、周末摸鱼不计额。"
+    + (fish.paused && offDuty ? ' <span class="warn">⚠ 当前不在计薪时段，摸鱼不计额</span>' : "");
+
+  /* 状态与倒计时 */
+  var b, c;
+  if(weekend){ b="🎉 周末休息中"; c="今天不计薪，快乐无价"; }
+  else if(t < s.start){ b="😴 尚未上班"; c="距开工 "+fmtDur(s.start-t); }
+  else if(t < s.lunchStart){ b="💻 上午搬砖中"; c="距午休 "+fmtDur(s.lunchStart-t); }
+  else if(t < s.lunchEnd){ b="🍜 午休中（不带薪）"; c="距下午开工 "+fmtDur(s.lunchEnd-t); }
+  else if(t < s.end){ b="💻 下午搬砖中"; c="距下班 "+fmtDur(s.end-t); }
+  else { b="✅ 今日已收工"; c="日结 ¥"+fmt(daily,2)+" 已入账"; }
+  if(fish.paused && inPaid) b = "🐟 摸鱼中（带薪）";
+  els.badge.textContent = b;
+  els.countdown.textContent = c;
+
+  document.title = "今日¥"+fmt(todayPaid,2)+" · 本月¥"+fmt(monthPaid,2)+" | 牛马草料计算器";
+  requestAnimationFrame(render);
+}
+
+/* ---------- 交互绑定 ---------- */
+function refreshFishBtn(){
+  els.fishBtn.textContent = fish.paused ? "💼 继续搬砖" : "🐟 开始摸鱼";
+  els.fishBtn.classList.toggle("active", fish.paused);
+}
+function bind(){
+  els.monthly.value = cfg.monthly;
+  els.monthly.addEventListener("input", function(){
+    var v = parseFloat(this.value);
+    if(isFinite(v) && v>0){ cfg.monthly = v; save(); }
+  });
+
+  function setMode(m){
+    cfg.startMode = m; save();
+    els.b0830.classList.toggle("active", m==="0830");
+    els.b0900.classList.toggle("active", m==="0900");
+  }
+  els.b0830.addEventListener("click", function(){ setMode("0830"); });
+  els.b0900.addEventListener("click", function(){ setMode("0900"); });
+  els.b0830.classList.toggle("active", cfg.startMode==="0830");
+  els.b0900.classList.toggle("active", cfg.startMode!=="0830");
+
+  els.workHours.value = cfg.workHours;
+  els.workHours.addEventListener("change", function(){
+    var v = parseFloat(this.value);
+    if(isFinite(v) && v>0 && v<=16){ cfg.workHours = v; save(); } else { this.value = cfg.workHours; }
+  });
+  els.lunchStart.value = cfg.lunchStart;
+  els.lunchEnd.value = cfg.lunchEnd;
+  els.lunchStart.addEventListener("change", function(){ if(this.value){ cfg.lunchStart=this.value; save(); } });
+  els.lunchEnd.addEventListener("change", function(){ if(this.value){ cfg.lunchEnd=this.value; save(); } });
+
+  els.fishBtn.addEventListener("click", function(){
+    resetFishIfNewDay();
+    if(fish.paused){
+      fish.banked += sessionPaidMin();   // 结算本段：只计计薪时段交集
+      fish.paused = false; fish.pauseStart = 0;
+    }else{
+      fish.paused = true; fish.pauseStart = Date.now();
+    }
+    saveFish(); refreshFishBtn();
+  });
+  refreshFishBtn();
+
+  els.quote.textContent = QUOTES[Math.floor(Math.random()*QUOTES.length)];
+}
+
+bind();
+requestAnimationFrame(render);
+})();
+</script>
+</body>
+</html>
